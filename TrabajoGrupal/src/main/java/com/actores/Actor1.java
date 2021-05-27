@@ -6,46 +6,50 @@ import akka.actor.typed.javadsl.ActorContext;
 import akka.actor.typed.javadsl.Behaviors;
 import akka.actor.typed.javadsl.Receive;
 
-public class Actor1 extends AbstractBehavior<Actor1.Command> {
+public class Actor1 extends AbstractBehavior<Actor1.Comando> {
 
-    interface Command {}
+    interface Comando {}
 
-    public enum SayHello implements Command{
-        INSTANCE
+    private Actor1(ActorContext<Comando> context){
+        super(context);
     }
 
-    public static class ChangeMessage implements Command{
-        public final String newMessage;
+    private String mensajeInicial = "Hola mundo";
 
-        public ChangeMessage(String newMessage) {
-            this.newMessage = newMessage;
+
+    public enum Saludar implements Comando {
+        EJEMPLO
+    }
+
+    public static class CambiarMensaje implements Comando {
+        public final String nuevoMensaje;
+
+        public CambiarMensaje(String nuevoMensaje) {
+            this.nuevoMensaje = nuevoMensaje;
         }
     }
 
-    public static Behavior<Command> create(){
+
+    public static Behavior<Comando> create(){
         return Behaviors.setup(context -> new Actor1(context));
     }
 
-    private String message = "Hola mundo";
 
-    private Actor1(ActorContext<Command> context){
-        super(context);
-    }
     @Override
-    public Receive<Command> createReceive() {
+    public Receive<Comando> createReceive() {
         return newReceiveBuilder()
-                .onMessageEquals(SayHello.INSTANCE, this::onSayHello)
-                .onMessage(ChangeMessage.class, this::onChangeMessage)
+                .onMessageEquals(Saludar.EJEMPLO, this::alSaludar)
+                .onMessage(CambiarMensaje.class, this::alCambiarMensaje)
                 .build();
     }
 
-    private Behavior<Command> onChangeMessage(ChangeMessage command) {
-        message = command.newMessage;
+    private Behavior<Comando> alSaludar() {
+        System.out.println(mensajeInicial);
         return this;
     }
 
-    private Behavior<Command> onSayHello() {
-        System.out.println(message);
+    private Behavior<Comando> alCambiarMensaje(CambiarMensaje command) {
+        mensajeInicial = command.nuevoMensaje;
         return this;
     }
 }

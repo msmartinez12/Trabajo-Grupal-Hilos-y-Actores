@@ -6,44 +6,48 @@ import akka.actor.typed.javadsl.ActorContext;
 import akka.actor.typed.javadsl.Behaviors;
 import akka.actor.typed.javadsl.Receive;
 
-public class Actor2 extends AbstractBehavior<Actor2.Command> {
-    interface Command {}
+public class Actor2 extends AbstractBehavior<Actor2.Comando> {
 
-    public enum SayHello implements Command {
-        INSTANCE
+    interface Comando {}
+
+    private Actor2(ActorContext<Comando> context){
+        super(context);
     }
 
-    public static class ChangeMessage implements Command {
+    private String mensajeInicial = "Hola mundo2";
+
+    public enum Saludar implements Comando {
+        EJEMPLO
+    }
+
+    public static class CambiarMensaje implements Comando {
         public final String newMessage;
 
-        public ChangeMessage(String newMessage) {
+        public CambiarMensaje(String newMessage) {
             this.newMessage = newMessage;
         }
     }
 
-    public static Behavior<Command> create(){
+    public static Behavior<Comando> create(){
         return Behaviors.setup(context -> new Actor2(context));
     }
-    private String message = "Hola mundo2";
 
-    private Actor2(ActorContext<Command> context){
-        super(context);
-    }
+
     @Override
-    public Receive<Command> createReceive() {
+    public Receive<Comando> createReceive() {
         return newReceiveBuilder()
-                .onMessageEquals(SayHello.INSTANCE, this::onSayHello)
-                .onMessage(ChangeMessage.class, this::onChangeMessage)
+                .onMessageEquals(Saludar.EJEMPLO, this::alSaludar)
+                .onMessage(CambiarMensaje.class, this::alCambiarMensaje)
                 .build();
     }
 
-    private Behavior<Command> onChangeMessage(ChangeMessage command) {
-        message = command.newMessage;
+    private Behavior<Comando> alCambiarMensaje(CambiarMensaje command) {
+        mensajeInicial = command.newMessage;
         return this;
     }
 
-    private Behavior<Command> onSayHello() {
-        System.out.println(message);
+    private Behavior<Comando> alSaludar() {
+        System.out.println(mensajeInicial);
         return this;
     }
 }
